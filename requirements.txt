@@ -5,3 +5,5 @@ tensorflow
 nltk
 pillow
 pytesseract
+transformers
+pipeline
