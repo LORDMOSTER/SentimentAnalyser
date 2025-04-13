@@ -1,10 +1,12 @@
 import streamlit as st
 from transformers import pipeline
 import pytesseract
-from PIL import Image
+import os
+import platform
 
-# Optional: configure Tesseract path (Windows only)
-pytesseract.pytesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+# Set tesseract path only on Windows
+if platform.system() == "Windows":
+    pytesseract.pytesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Load models
 @st.cache_resource
@@ -55,10 +57,6 @@ st.markdown(f"""
             background: linear-gradient(135deg, #feb47b, #ff7e5f);
             transform: scale(1.05);
         }}
-        img {{
-            border-radius: 12px;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-        }}
     </style>
 """, unsafe_allow_html=True)
 
@@ -78,26 +76,3 @@ if st.button("Analyze Text"):
             st.markdown(f"**Sentiment:** {sentiment_result['label']} {sentiment_emoji} ({sentiment_result['score']:.2f})")
     else:
         st.warning("Please enter some text.")
-
-# Image input
-st.subheader("🖼️ Analyze Sentiment from Image")
-uploaded_file = st.file_uploader("Upload an image with text (png/jpg/jpeg)", type=["png", "jpg", "jpeg"])
-
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption="📷 Uploaded Image", use_column_width=True)
-
-    if st.button("Analyze Image Text"):
-        extracted_text = pytesseract.image_to_string(image)
-        st.markdown("**📝 Extracted Text:**")
-        st.code(extracted_text)
-
-        if extracted_text.strip() == "":
-            st.warning("Couldn't extract text from the image.")
-        else:
-            with st.spinner("Analyzing..."):
-                sentiment_result = sentiment_model(extracted_text)[0]
-                sentiment_emoji = "😊" if sentiment_result['label'] == "POSITIVE" else "😞"
-
-                st.subheader("🔍 Image Result:")
-                st.markdown(f"**Sentiment from Image:** {sentiment_result['label']} {sentiment_emoji} ({sentiment_result['score']:.2f})")
