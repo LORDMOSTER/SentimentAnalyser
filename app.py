@@ -1,12 +1,7 @@
 import streamlit as st
 from transformers import pipeline
-import pytesseract
 import os
 import platform
-
-# Set tesseract path only on Windows
-if platform.system() == "Windows":
-    pytesseract.pytesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
 # Load models
 @st.cache_resource
