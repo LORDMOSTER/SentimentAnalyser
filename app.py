@@ -1,17 +1,18 @@
 import streamlit as st
 from transformers import pipeline
-import os
 import platform
 
-# Set tesseract path only on Windows
-# if platform.system() == "Windows":
-#     pytesseract.pytesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-
-# Load models
-@st.cache_resource
+# Load models with error handling
 def load_models():
-    sentiment_pipeline = pipeline("sentiment-analysis", model="distilbert-base-uncased-finetuned-sst-2-english")
-    return sentiment_pipeline
+    try:
+        sentiment_pipeline = pipeline(
+            "sentiment-analysis",
+            model="distilbert-base-uncased-finetuned-sst-2-english"
+        )
+        return sentiment_pipeline
+    except Exception as e:
+        st.error(f"❌ Model load error: {e}")
+        raise
 
 sentiment_model = load_models()
 
@@ -22,11 +23,13 @@ if 'theme_dark' not in st.session_state:
 def toggle_theme():
     st.session_state.theme_dark = not st.session_state.theme_dark
 
-# UI
+# Theme toggle button
 theme_icon = "🌑" if st.session_state.theme_dark else "🌕"
 st.markdown(f"""
     <div style='text-align: right'>
-        <button onclick="window.location.reload()" style="background:none;border:none;font-size:24px;">{theme_icon}</button>
+        <form action="" method="post">
+            <button onclick="window.location.reload()" style="background:none;border:none;font-size:24px;">{theme_icon}</button>
+        </form>
     </div>
 """, unsafe_allow_html=True)
 
@@ -59,19 +62,24 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
+# App title and description
 st.title("🧠 Sentiment Analyzer")
 st.markdown("Analyze text for **sentiment** using AI models.")
 
 # Text input
 text_input = st.text_area("Enter text to analyze:")
 
+# Analyze button
 if st.button("Analyze Text"):
     if text_input:
         with st.spinner("Analyzing..."):
-            sentiment_result = sentiment_model(text_input)[0]
-            sentiment_emoji = "😊" if sentiment_result['label'] == "POSITIVE" else "😞"
+            try:
+                sentiment_result = sentiment_model(text_input)[0]
+                sentiment_emoji = "😊" if sentiment_result['label'] == "POSITIVE" else "😞"
 
-            st.subheader("🔍 Text Result:")
-            st.markdown(f"**Sentiment:** {sentiment_result['label']} {sentiment_emoji} ({sentiment_result['score']:.2f})")
+                st.subheader("🔍 Text Result:")
+                st.markdown(f"**Sentiment:** {sentiment_result['label']} {sentiment_emoji} ({sentiment_result['score']:.2f})")
+            except Exception as e:
+                st.error(f"❌ Error during analysis: {e}")
     else:
-        st.warning("Please enter some text.")
+        st.warning("⚠️ Please enter some text.")
