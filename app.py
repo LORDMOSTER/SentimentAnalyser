@@ -1,8 +1,6 @@
-import os
-os.environ["USE_TF"] = "0"  # ✅ Avoid TensorFlow completely
-
 import streamlit as st
 from transformers import pipeline
+import platform
 
 # Load models with error handling
 def load_models():
@@ -22,7 +20,10 @@ sentiment_model = load_models()
 if 'theme_dark' not in st.session_state:
     st.session_state.theme_dark = True
 
-# Theme button
+def toggle_theme():
+    st.session_state.theme_dark = not st.session_state.theme_dark
+
+# Theme toggle button
 theme_icon = "🌑" if st.session_state.theme_dark else "🌕"
 st.markdown(f"""
     <div style='text-align: right'>
@@ -32,12 +33,13 @@ st.markdown(f"""
     </div>
 """, unsafe_allow_html=True)
 
-# Styling
+# Custom CSS for styling
 st.markdown(f"""
     <style>
         html, body {{
             background-color: {"#1e1e1e" if st.session_state.theme_dark else "#f0f8ff"};
             color: {"#ffffff" if st.session_state.theme_dark else "#000000"};
+            transition: background-color 0.4s ease;
         }}
         textarea, .stTextInput > div > div > input {{
             background-color: {"#333333" if st.session_state.theme_dark else "#ffffff"} !important;
@@ -60,6 +62,7 @@ st.markdown(f"""
     </style>
 """, unsafe_allow_html=True)
 
+# App title and description
 st.title("🧠 Sentiment Analyzer")
 st.markdown("Analyze text for **sentiment** using AI models.")
 
@@ -79,4 +82,4 @@ if st.button("Analyze Text"):
             except Exception as e:
                 st.error(f"❌ Error during analysis: {e}")
     else:
-        st.warning("⚠️ Please enter some text to analyze.")
+        st.warning("⚠️ Please enter some text.")
