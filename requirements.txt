@@ -1,6 +1,12 @@
-streamlit>=1.31.0
+# Core ML & NLP libraries
 transformers==4.36.2
-torch==2.1.2  # Works with Python 3.12
-numpy
-scikit-learn
-pandas
+torch==2.1.0
+scikit-learn==1.3.0
+numpy==1.26.4
+pandas==2.1.4
+
+# Streamlit app framework
+streamlit==1.31.1
+
+# Other useful packages
+requests
